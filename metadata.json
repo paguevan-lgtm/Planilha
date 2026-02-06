@@ -1,0 +1,10 @@
+
+{
+  "name": "Lotação Pro 2026",
+  "description": "App profissional de gestão financeira offline para transporte e lotação.",
+  "requestFramePermissions": [],
+  "short_name": "LotaçãoPro",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "display": "standalone"
+}
