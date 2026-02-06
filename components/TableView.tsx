@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { DayData, MonthName, AppSettings } from '../types';
 import { calculateDailyStats, formatCurrency } from '../utils';
-import { Save, MessageSquare, Info, Edit3, X, ChevronRight } from 'lucide-react';
+import { Save, MessageSquare, ChevronRight } from 'lucide-react';
 
 interface Props {
   data: DayData[];
@@ -21,9 +21,7 @@ const TableView: React.FC<Props> = ({ data, monthName, onUpdate, settings }) => 
     }
   };
 
-  const editingDay = editingIdx !== null ? data[editingIdx] : null;
-  const editingStats = editingDay ? calculateDailyStats(editingDay, settings) : null;
-
+  // Fixed the component by providing a full implementation and adding export default.
   return (
     <div className="space-y-4">
       {/* --- DESKTOP VIEW: TABELA --- */}
@@ -43,71 +41,98 @@ const TableView: React.FC<Props> = ({ data, monthName, onUpdate, settings }) => 
             <thead className="sticky top-0 z-20 bg-slate-900 text-slate-400 font-black uppercase tracking-[0.1em] text-[10px]">
               <tr>
                 <th className="px-3 py-5 text-center sticky left-0 z-30 bg-slate-900 border-b border-slate-700">Dia</th>
-                <th className="px-3 py-5 text-center bg-blue-900/10 border-b border-slate-700">
-                  {settings.labels.subida} <span className="block text-[8px] text-blue-400">(R${settings.passengerValue})</span>
-                </th>
-                <th className="px-3 py-5 text-center bg-blue-900/10 border-b border-slate-700">
-                  {settings.labels.descida} <span className="block text-[8px] text-blue-400">(R${settings.passengerValue})</span>
-                </th>
+                <th className="px-3 py-5 text-center bg-blue-900/10 border-b border-slate-700">{settings.labels.subida}</th>
+                <th className="px-3 py-5 text-center bg-blue-900/10 border-b border-slate-700">{settings.labels.descida}</th>
                 <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.pedagio1}</th>
                 <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.pedagio2}</th>
                 <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.gasolina}</th>
                 <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.prancheta}</th>
-                <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.pagPassageiro}</th>
                 <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.lanche}</th>
-                <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.pagVagas}</th>
-                <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.transbordo}</th>
-                <th className="px-3 py-5 text-center bg-amber-900/10 border-b border-slate-700">{settings.labels.adicional}</th>
-                <th className="px-3 py-5 text-center bg-slate-900 border-b border-slate-700">{settings.labels.total}</th>
+                <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.adicional}</th>
+                <th className="px-3 py-5 text-center border-b border-slate-700">Líquido</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/50">
               {data.map((day, idx) => {
                 const stats = calculateDailyStats(day, settings);
-                const hasData = stats.receitaBruta !== 0 || stats.despesas !== 0 || (Number(day.adicional) || 0) !== 0;
-                
+                const isActive = stats.receitaBruta > 0 || stats.despesas > 0;
                 return (
-                  <tr key={idx} className={`group hover:bg-slate-700/30 transition-colors ${hasData ? 'bg-slate-800/40' : ''}`}>
-                    <td className="px-3 py-2 text-center font-black text-slate-500 bg-slate-900/20 group-hover:text-blue-400 transition-colors sticky left-0 z-10 backdrop-blur-sm">
-                      {day.dia}
+                  <tr key={idx} className={`hover:bg-slate-700/30 transition-colors ${isActive ? 'bg-slate-800/40' : 'bg-transparent opacity-60'}`}>
+                    <td className="px-3 py-4 text-center font-black text-slate-500 sticky left-0 z-10 bg-slate-800 border-r border-slate-700/50">{day.dia}</td>
+                    <td className="px-2 py-2">
+                      <input 
+                        type="number" 
+                        value={day.subida || ''} 
+                        onChange={e => onUpdate(monthName, idx, 'subida', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-blue-400 focus:border-blue-500 outline-none transition-all"
+                      />
                     </td>
-                    <InputCell value={day.subida} onChange={v => onUpdate(monthName, idx, 'subida', v)} />
-                    <InputCell value={day.descida} onChange={v => onUpdate(monthName, idx, 'descida', v)} />
-                    <InputCell value={day.pedagio1} onChange={v => onUpdate(monthName, idx, 'pedagio1', v)} color="text-red-400" />
-                    <InputCell value={day.pedagio2} onChange={v => onUpdate(monthName, idx, 'pedagio2', v)} color="text-red-400" />
-                    <InputCell value={day.gasolina} onChange={v => onUpdate(monthName, idx, 'gasolina', v)} color="text-red-400" />
-                    <InputCell value={day.prancheta} onChange={v => onUpdate(monthName, idx, 'prancheta', v)} color="text-red-400" />
-                    <InputCell value={day.pagPassageiro} onChange={v => onUpdate(monthName, idx, 'pagPassageiro', v)} color="text-red-400" />
-                    <InputCell value={day.lanche} onChange={v => onUpdate(monthName, idx, 'lanche', v)} color="text-red-400" />
-                    <InputCell value={day.pagVagas} onChange={v => onUpdate(monthName, idx, 'pagVagas', v)} color="text-red-400" />
-                    <InputCell value={day.transbordo} onChange={v => onUpdate(monthName, idx, 'transbordo', v)} color="text-red-400" />
-                    
-                    <td className="p-0 border-r border-slate-700/20 relative group/adic">
-                      <div className="flex items-center">
-                        <input
-                          type="number"
-                          value={day.adicional || ''}
-                          placeholder="0"
+                    <td className="px-2 py-2">
+                      <input 
+                        type="number" 
+                        value={day.descida || ''} 
+                        onChange={e => onUpdate(monthName, idx, 'descida', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-blue-400 focus:border-blue-500 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <input 
+                        type="number" 
+                        value={day.pedagio1 || ''} 
+                        onChange={e => onUpdate(monthName, idx, 'pedagio1', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-red-400 focus:border-red-500 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <input 
+                        type="number" 
+                        value={day.pedagio2 || ''} 
+                        onChange={e => onUpdate(monthName, idx, 'pedagio2', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-red-400 focus:border-red-500 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <input 
+                        type="number" 
+                        value={day.gasolina || ''} 
+                        onChange={e => onUpdate(monthName, idx, 'gasolina', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-red-400 focus:border-red-500 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <input 
+                        type="number" 
+                        value={day.prancheta || ''} 
+                        onChange={e => onUpdate(monthName, idx, 'prancheta', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-red-400 focus:border-red-500 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <input 
+                        type="number" 
+                        value={day.lanche || ''} 
+                        onChange={e => onUpdate(monthName, idx, 'lanche', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-red-400 focus:border-red-500 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <div className="relative group">
+                        <input 
+                          type="number" 
+                          value={day.adicional || ''} 
                           onChange={e => onUpdate(monthName, idx, 'adicional', Number(e.target.value))}
-                          className="w-full h-full bg-transparent px-2 py-3 text-center outline-none focus:bg-slate-700/50 transition-all text-amber-400 font-bold"
+                          className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-amber-400 focus:border-amber-500 outline-none transition-all"
                         />
                         <button 
                           onClick={() => handleComment(idx, day.adicionalComment || "")}
-                          className={`absolute right-1 p-1 rounded-md transition-all ${day.adicionalComment ? 'text-amber-500 bg-amber-500/10' : 'text-slate-600 opacity-0 group-hover/adic:opacity-100 hover:text-amber-400'}`}
+                          className={`absolute -right-1 -top-1 p-1 rounded-full ${day.adicionalComment ? 'bg-amber-500 text-white' : 'bg-slate-700 text-slate-500 opacity-0 group-hover:opacity-100'} transition-all`}
                         >
-                          <MessageSquare size={12} />
-                          {day.adicionalComment && (
-                             <div className="absolute bottom-full right-0 mb-2 w-48 bg-slate-900 text-slate-100 text-[10px] p-2 rounded-lg border border-slate-700 shadow-2xl invisible group-hover/adic:visible z-50 pointer-events-none normal-case font-medium">
-                                <Info size={10} className="inline mr-1 text-amber-500" />
-                                {day.adicionalComment}
-                             </div>
-                          )}
+                          <MessageSquare size={8} />
                         </button>
                       </div>
                     </td>
-
-                    <td className={`px-4 py-2 text-right font-black border-l border-slate-700/50 ${stats.lucroLiquido >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                      {hasData ? formatCurrency(stats.lucroLiquido) : '-'}
+                    <td className={`px-3 py-4 text-center font-black tracking-tighter ${stats.lucroLiquido >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {formatCurrency(stats.lucroLiquido)}
                     </td>
                   </tr>
                 );
@@ -118,179 +143,102 @@ const TableView: React.FC<Props> = ({ data, monthName, onUpdate, settings }) => 
       </div>
 
       {/* --- MOBILE VIEW: CARDS --- */}
-      <div className="md:hidden grid grid-cols-1 gap-3">
+      <div className="md:hidden space-y-3">
         {data.map((day, idx) => {
           const stats = calculateDailyStats(day, settings);
-          const hasData = stats.receitaBruta !== 0 || stats.despesas !== 0 || (Number(day.adicional) || 0) !== 0;
+          const isExpanded = editingIdx === idx;
+          const isActive = stats.receitaBruta > 0 || stats.despesas > 0;
 
           return (
-            <button
-              key={idx}
-              onClick={() => setEditingIdx(idx)}
-              className={`flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-2xl active:scale-[0.98] transition-all text-left ${hasData ? 'border-l-4 border-l-blue-500' : ''}`}
+            <div 
+              key={idx} 
+              className={`bg-slate-800 border rounded-2xl transition-all duration-300 ${
+                isActive ? 'border-slate-700' : 'border-slate-800 opacity-50'
+              } ${isExpanded ? 'ring-2 ring-blue-500 shadow-2xl' : ''}`}
             >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center font-black text-blue-400">
-                  {day.dia}
+              <div 
+                className="p-4 flex items-center justify-between cursor-pointer"
+                onClick={() => setEditingIdx(isExpanded ? null : idx)}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-slate-950 rounded-xl flex items-center justify-center font-black text-slate-400 border border-slate-700">
+                    {day.dia}
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Saldo Diário</div>
+                    <div className={`text-lg font-black tracking-tighter ${stats.lucroLiquido >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {formatCurrency(stats.lucroLiquido)}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-slate-100 text-sm font-bold uppercase tracking-tighter">Dia {day.dia}</h4>
-                  <p className={`text-[10px] font-black uppercase ${stats.lucroLiquido >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {hasData ? formatCurrency(stats.lucroLiquido) : 'Sem Lançamento'}
-                  </p>
+                <div className="flex items-center gap-2">
+                  {day.adicionalComment && <MessageSquare size={14} className="text-amber-500" />}
+                  <div className={`p-2 rounded-lg transition-transform ${isExpanded ? 'rotate-90 bg-blue-600/20 text-blue-400' : 'text-slate-600'}`}>
+                    <ChevronRight size={20} />
+                  </div>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-slate-600" />
-            </button>
+
+              {isExpanded && (
+                <div className="p-4 pt-0 border-t border-slate-700/50 animate-in slide-in-from-top-2">
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    <MobileInput label={settings.labels.subida} value={day.subida} onChange={v => onUpdate(monthName, idx, 'subida', v)} color="text-blue-400" />
+                    <MobileInput label={settings.labels.descida} value={day.descida} onChange={v => onUpdate(monthName, idx, 'descida', v)} color="text-blue-400" />
+                    <MobileInput label={settings.labels.pedagio1} value={day.pedagio1} onChange={v => onUpdate(monthName, idx, 'pedagio1', v)} color="text-red-400" />
+                    <MobileInput label={settings.labels.pedagio2} value={day.pedagio2} onChange={v => onUpdate(monthName, idx, 'pedagio2', v)} color="text-red-400" />
+                    <MobileInput label={settings.labels.gasolina} value={day.gasolina} onChange={v => onUpdate(monthName, idx, 'gasolina', v)} color="text-red-400" />
+                    <MobileInput label={settings.labels.adicional} value={day.adicional} onChange={v => onUpdate(monthName, idx, 'adicional', v)} color="text-amber-400" hasComment onCommentClick={() => handleComment(idx, day.adicionalComment || "")} commentActive={!!day.adicionalComment} />
+                  </div>
+                  
+                  <div className="mt-4 p-4 bg-slate-950/50 rounded-xl border border-slate-700/50 flex justify-between items-center">
+                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Ganhos: {stats.passageiros} pass.</div>
+                    <div className="text-xs font-black text-slate-300">Taxa: {formatCurrency(stats.appliedRate)}</div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => setEditingIdx(null)}
+                    className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-blue-600/20"
+                  >
+                    Confirmar Lançamento
+                  </button>
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
-
-      {/* --- MOBILE MODAL: FORMULÁRIO --- */}
-      {editingIdx !== null && editingDay && (
-        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setEditingIdx(null)} />
-          
-          <div className="relative w-full max-w-lg bg-slate-900 sm:rounded-[32px] rounded-t-[32px] shadow-2xl overflow-hidden border-t border-slate-700 sm:border flex flex-col max-h-[90vh] animate-in slide-in-from-bottom-10 duration-300">
-            {/* Modal Header */}
-            <div className="p-6 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-black text-slate-100 uppercase tracking-tighter italic">Lançamento Dia {editingDay.dia}</h3>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{monthName} 2026</p>
-              </div>
-              <button 
-                onClick={() => setEditingIdx(null)}
-                className="p-2 bg-slate-800 text-slate-400 rounded-full hover:text-white transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Modal Body: Form */}
-            <div className="p-6 overflow-y-auto space-y-8 no-scrollbar pb-12">
-              
-              {/* Resumo Instantâneo */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50">
-                   <p className="text-[8px] text-slate-500 font-black uppercase tracking-widest mb-1">Resultado Atual</p>
-                   <p className={`text-xl font-black ${editingStats!.lucroLiquido >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                     {formatCurrency(editingStats!.lucroLiquido)}
-                   </p>
-                </div>
-                <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50">
-                   <p className="text-[8px] text-slate-500 font-black uppercase tracking-widest mb-1">Total Passageiros</p>
-                   <p className="text-xl font-black text-blue-400">
-                     {editingStats!.passageiros}
-                   </p>
-                </div>
-              </div>
-
-              {/* Seção: Passageiros */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                   <div className="w-1 h-4 bg-blue-500 rounded-full" />
-                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Movimentação</h4>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <MobileInput label={settings.labels.subida} value={editingDay.subida} onChange={v => onUpdate(monthName, editingIdx, 'subida', v)} icon="↑" />
-                  <MobileInput label={settings.labels.descida} value={editingDay.descida} onChange={v => onUpdate(monthName, editingIdx, 'descida', v)} icon="↓" />
-                </div>
-              </div>
-
-              {/* Seção: Custos Variáveis */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                   <div className="w-1 h-4 bg-red-500 rounded-full" />
-                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Custos de Viagem</h4>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <MobileInput label={settings.labels.pedagio1} value={editingDay.pedagio1} onChange={v => onUpdate(monthName, editingIdx, 'pedagio1', v)} color="border-red-500/30" />
-                  <MobileInput label={settings.labels.pedagio2} value={editingDay.pedagio2} onChange={v => onUpdate(monthName, editingIdx, 'pedagio2', v)} color="border-red-500/30" />
-                  <MobileInput label={settings.labels.gasolina} value={editingDay.gasolina} onChange={v => onUpdate(monthName, editingIdx, 'gasolina', v)} color="border-red-500/30" />
-                  <MobileInput label={settings.labels.transbordo} value={editingDay.transbordo} onChange={v => onUpdate(monthName, editingIdx, 'transbordo', v)} color="border-red-500/30" />
-                </div>
-              </div>
-
-              {/* Seção: Administrativo */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                   <div className="w-1 h-4 bg-amber-500 rounded-full" />
-                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Administrativo</h4>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <MobileInput label={settings.labels.prancheta} value={editingDay.prancheta} onChange={v => onUpdate(monthName, editingIdx, 'prancheta', v)} />
-                  <MobileInput label={settings.labels.lanche} value={editingDay.lanche} onChange={v => onUpdate(monthName, editingIdx, 'lanche', v)} />
-                  <MobileInput label={settings.labels.pagPassageiro} value={editingDay.pagPassageiro} onChange={v => onUpdate(monthName, editingIdx, 'pagPassageiro', v)} />
-                  <MobileInput label={settings.labels.pagVagas} value={editingDay.pagVagas} onChange={v => onUpdate(monthName, editingIdx, 'pagVagas', v)} />
-                </div>
-                <div className="space-y-2">
-                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{settings.labels.adicional}</label>
-                   <div className="flex gap-2">
-                      <input 
-                        type="number" 
-                        value={editingDay.adicional || ''} 
-                        onChange={e => onUpdate(monthName, editingIdx, 'adicional', Number(e.target.value))}
-                        className="flex-1 bg-slate-800 border border-slate-700 rounded-2xl px-4 py-4 text-amber-400 font-bold outline-none focus:ring-2 focus:ring-amber-500/50" 
-                      />
-                      <button 
-                        onClick={() => handleComment(editingIdx, editingDay.adicionalComment || "")}
-                        className={`p-4 rounded-2xl border transition-all ${editingDay.adicionalComment ? 'bg-amber-500/10 border-amber-500 text-amber-500' : 'bg-slate-800 border-slate-700 text-slate-500'}`}
-                      >
-                        <MessageSquare size={20} />
-                      </button>
-                   </div>
-                   {editingDay.adicionalComment && (
-                     <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-xl text-xs text-amber-200 italic">
-                        "{editingDay.adicionalComment}"
-                     </div>
-                   )}
-                </div>
-              </div>
-
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-6 bg-slate-900 border-t border-slate-800 flex justify-end">
-               <button 
-                 onClick={() => setEditingIdx(null)}
-                 className="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all"
-               >
-                 Confirmar e Salvar
-               </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-const MobileInput = ({ label, value, onChange, icon, color = "border-slate-700" }: { label: string, value: number, onChange: (v: number) => void, icon?: string, color?: string }) => (
-  <div className="space-y-2">
-    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate block">{label}</label>
-    <div className={`relative flex items-center bg-slate-800 border ${color} rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/50 transition-all`}>
-      {icon && <span className="pl-4 text-blue-400 font-bold">{icon}</span>}
+const MobileInput = ({ label, value, onChange, color, hasComment, onCommentClick, commentActive }: { 
+  label: string, 
+  value: number, 
+  onChange: (v: number) => void, 
+  color: string,
+  hasComment?: boolean,
+  onCommentClick?: () => void,
+  commentActive?: boolean
+}) => (
+  <div className="bg-slate-900 p-3 rounded-2xl border border-slate-700/50 relative">
+    <label className="block text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">{label}</label>
+    <div className="flex items-center gap-1">
       <input 
         type="number" 
-        value={value || ''}
-        placeholder="0"
+        value={value || ''} 
         onChange={e => onChange(Number(e.target.value))}
-        className="w-full bg-transparent px-4 py-4 text-slate-100 font-bold outline-none text-center"
+        className={`w-full bg-transparent outline-none font-black text-sm ${color}`}
       />
+      {hasComment && (
+        <button 
+          onClick={onCommentClick}
+          className={`p-1.5 rounded-lg transition-all ${commentActive ? 'bg-amber-500 text-white' : 'bg-slate-800 text-slate-500'}`}
+        >
+          <MessageSquare size={12} />
+        </button>
+      )}
     </div>
   </div>
-);
-
-const InputCell = ({ value, onChange, color = "text-slate-300" }: { value: number, onChange: (v: number) => void, color?: string }) => (
-  <td className="p-0 border-r border-slate-700/20">
-    <input
-      type="number"
-      value={value || ''}
-      placeholder="0"
-      onChange={e => onChange(Number(e.target.value))}
-      className={`w-full h-full bg-transparent px-2 py-3 text-center outline-none focus:bg-slate-700/50 transition-all ${color}`}
-    />
-  </td>
 );
 
 export default TableView;
