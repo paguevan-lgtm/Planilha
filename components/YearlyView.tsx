@@ -49,7 +49,7 @@ const YearlyView: React.FC<Props> = ({ data, settings }) => {
   return (
     <div className="space-y-6 animate-in zoom-in-95 duration-500">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <SummaryCard label="Lucro Total Anual" value={formatCurrency(yearTotals.liq)} icon={<Award className="text-amber-400" />} desc="2026 Acumulado" />
+        <SummaryCard label="Lucro Total Anual" value={formatCurrency(yearTotals.liq)} icon={<Award className="text-amber-400" />} desc="2026 Acumuladoasdasd" />
         <SummaryCard label="Média Mensal" value={formatCurrency(yearTotals.liq / 12)} icon={<Target className="text-emerald-400" />} desc="Performance estimada" />
         <SummaryCard label="Fluxo Total Bruto" value={formatCurrency(yearTotals.rec)} icon={<TrendingUp className="text-blue-400" />} desc="Entradas processadas" />
       </div>
