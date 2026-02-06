@@ -14,7 +14,7 @@ import {
   Users,
   Settings as SettingsIcon
 } from 'lucide-react';
-import { AppData, MonthName, ViewType, AppSettings } from './types';
+import { AppData, MonthName, ViewType, AppSettings, DayData } from './types';
 import { MONTHS, EMPTY_DAY_DATA, DEFAULT_SETTINGS } from './constants';
 import { formatCurrency, formatNumber, calculateDailyStats } from './utils';
 import DashboardView from './components/DashboardView';
@@ -63,7 +63,17 @@ export default function App() {
 
   const handleUpdateDay = (month: MonthName, dayIndex: number, field: string, value: any) => {
     const newData = { ...data };
-    (newData[month][dayIndex] as any)[field] = value;
+    const day = { ...newData[month][dayIndex] };
+    (day as any)[field] = value;
+
+    // "Carimba" o valor do passageiro atual se o dia ainda não tiver um valor fixado
+    // Isso garante que se o usuário mudar o valor nos ajustes amanhã, este dia (viagem antiga)
+    // manterá o valor que estava em vigor no momento do preenchimento.
+    if (!day.rate || day.rate === 0) {
+      day.rate = settings.passengerValue;
+    }
+
+    newData[month][dayIndex] = day;
     setData(newData);
   };
 

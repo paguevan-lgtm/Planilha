@@ -13,9 +13,12 @@ export const formatNumber = (value: number): string => {
 };
 
 export const calculateDailyStats = (day: DayData, settings: AppSettings): CalculatedStats => {
-  // Receita Base: Cada passageiro (subida ou descida) vale o valor configurado
+  // Prioriza o valor salvo no dia. Se não houver (ex: legado), usa o valor atual dos ajustes.
+  const appliedRate = (day.rate && day.rate > 0) ? day.rate : settings.passengerValue;
+  
+  // Receita Base: Cada passageiro (subida ou descida) vale o valor aplicado
   const passageirosTotal = (Number(day.subida) || 0) + (Number(day.descida) || 0);
-  const receitaBase = passageirosTotal * settings.passengerValue;
+  const receitaBase = passageirosTotal * appliedRate;
 
   // Deduções (Todos estes diminuem o total)
   const custosFixos = 
@@ -41,6 +44,7 @@ export const calculateDailyStats = (day: DayData, settings: AppSettings): Calcul
     receitaBruta: receitaBrutaGrafico,
     despesas: despesasTotaisGrafico,
     lucroLiquido,
-    passageiros: passageirosTotal
+    passageiros: passageirosTotal,
+    appliedRate
   };
 };

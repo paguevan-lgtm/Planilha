@@ -13,6 +13,7 @@ export interface DayData {
   transbordo: number;
   adicional: number;
   adicionalComment?: string;
+  rate?: number; // Valor do passageiro fixado no momento do lançamento
 }
 
 export type MonthName = 
@@ -32,6 +33,7 @@ export interface CalculatedStats {
   despesas: number;
   lucroLiquido: number;
   passageiros: number;
+  appliedRate: number;
 }
 
 export type ViewType = 'dashboard' | 'tabela' | 'anual' | 'config';

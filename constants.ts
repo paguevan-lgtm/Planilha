@@ -18,7 +18,8 @@ export const EMPTY_DAY_DATA: Omit<DayData, 'dia'> = {
   pagVagas: 0,
   transbordo: 0,
   adicional: 0,
-  adicionalComment: ''
+  adicionalComment: '',
+  rate: 0
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
