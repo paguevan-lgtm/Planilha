@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { DayData, MonthName, AppSettings } from '../types';
 import { calculateDailyStats, formatCurrency } from '../utils';
@@ -21,7 +20,6 @@ const TableView: React.FC<Props> = ({ data, monthName, onUpdate, settings }) => 
     }
   };
 
-  // Fixed the component by providing a full implementation and adding export default.
   return (
     <div className="space-y-4">
       {/* --- DESKTOP VIEW: TABELA --- */}
@@ -48,6 +46,9 @@ const TableView: React.FC<Props> = ({ data, monthName, onUpdate, settings }) => 
                 <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.gasolina}</th>
                 <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.prancheta}</th>
                 <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.lanche}</th>
+                <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.pagPassageiro}</th>
+                <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.pagVagas}</th>
+                <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.transbordo}</th>
                 <th className="px-3 py-5 text-center bg-red-900/10 border-b border-slate-700">{settings.labels.adicional}</th>
                 <th className="px-3 py-5 text-center border-b border-slate-700">Líquido</th>
               </tr>
@@ -112,6 +113,30 @@ const TableView: React.FC<Props> = ({ data, monthName, onUpdate, settings }) => 
                         type="number" 
                         value={day.lanche || ''} 
                         onChange={e => onUpdate(monthName, idx, 'lanche', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-red-400 focus:border-red-500 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <input
+                        type="number"
+                        value={day.pagPassageiro || ''}
+                        onChange={e => onUpdate(monthName, idx, 'pagPassageiro', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-red-400 focus:border-red-500 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <input
+                        type="number"
+                        value={day.pagVagas || ''}
+                        onChange={e => onUpdate(monthName, idx, 'pagVagas', Number(e.target.value))}
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-red-400 focus:border-red-500 outline-none transition-all"
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <input
+                        type="number"
+                        value={day.transbordo || ''}
+                        onChange={e => onUpdate(monthName, idx, 'transbordo', Number(e.target.value))}
                         className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-2 py-1.5 text-center font-bold text-red-400 focus:border-red-500 outline-none transition-all"
                       />
                     </td>
@@ -187,7 +212,14 @@ const TableView: React.FC<Props> = ({ data, monthName, onUpdate, settings }) => 
                     <MobileInput label={settings.labels.pedagio1} value={day.pedagio1} onChange={v => onUpdate(monthName, idx, 'pedagio1', v)} color="text-red-400" />
                     <MobileInput label={settings.labels.pedagio2} value={day.pedagio2} onChange={v => onUpdate(monthName, idx, 'pedagio2', v)} color="text-red-400" />
                     <MobileInput label={settings.labels.gasolina} value={day.gasolina} onChange={v => onUpdate(monthName, idx, 'gasolina', v)} color="text-red-400" />
-                    <MobileInput label={settings.labels.adicional} value={day.adicional} onChange={v => onUpdate(monthName, idx, 'adicional', v)} color="text-amber-400" hasComment onCommentClick={() => handleComment(idx, day.adicionalComment || "")} commentActive={!!day.adicionalComment} />
+                    <MobileInput label={settings.labels.prancheta} value={day.prancheta} onChange={v => onUpdate(monthName, idx, 'prancheta', v)} color="text-red-400" />
+                    <MobileInput label={settings.labels.lanche} value={day.lanche} onChange={v => onUpdate(monthName, idx, 'lanche', v)} color="text-red-400" />
+                    <MobileInput label={settings.labels.pagPassageiro} value={day.pagPassageiro} onChange={v => onUpdate(monthName, idx, 'pagPassageiro', v)} color="text-red-400" />
+                    <MobileInput label={settings.labels.pagVagas} value={day.pagVagas} onChange={v => onUpdate(monthName, idx, 'pagVagas', v)} color="text-red-400" />
+                    <MobileInput label={settings.labels.transbordo} value={day.transbordo} onChange={v => onUpdate(monthName, idx, 'transbordo', v)} color="text-red-400" />
+                    <div className="col-span-2">
+                      <MobileInput label={settings.labels.adicional} value={day.adicional} onChange={v => onUpdate(monthName, idx, 'adicional', v)} color="text-amber-400" hasComment onCommentClick={() => handleComment(idx, day.adicionalComment || "")} commentActive={!!day.adicionalComment} />
+                    </div>
                   </div>
                   
                   <div className="mt-4 p-4 bg-slate-950/50 rounded-xl border border-slate-700/50 flex justify-between items-center">
